@@ -1,3 +1,10 @@
-Esse arquio automatiza o processo de criar um arquivo de relatório de envio de correspôndencia para os correios no dia aatual
-Ele utiliza python e as bibliotecas pywin32 e selenium
-Para fazer o código funcionar pela primeira vez dê um pip install pyin32 e pip install selenium no terminal de comando
+Este script automatiza o processo de criação de um relatório diário de envio de correspondências para os Correios.
+
+Ele utiliza Python com as bibliotecas pywin32 e Selenium.
+
+Instruções (Primeira Vez):
+
+Para fazer o código funcionar pela primeira vez, instale as dependências necessárias. Abra seu terminal de comando e execute:
+
+pip install pywin32
+pip install selenium

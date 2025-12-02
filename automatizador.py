@@ -1,20 +1,21 @@
 # precisa instalar o pip install pywin32 e pip install selenium no terminal de comando
 import time
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select  # Para caixas de <select>
+from selenium.webdriver.support.ui import Select # Para caixas de <select>
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 import win32com.client
 import os
 
-# --- Configuração --- #
+# --- Configuração ---
 # (Você precisará baixar o "chromedriver" e colocar o caminho aqui,
 # ou deixar o Selenium 4+ baixá-lo automaticamente)
 driver = webdriver.Chrome()
-wait = WebDriverWait(driver, 70)  # Define um tempo de espera máximo (70 seg)
+wait = WebDriverWait(driver, 70) # Define um tempo de espera máximo (70 seg)
 
 # ----------- Parte 1 Agilis ----------- #
 # DEFINA SEUS DADOS DE LOGIN E A URL INICIAL
@@ -31,7 +32,6 @@ try:
     try:
         selector_login_integrado = (By.LINK_TEXT, "Login Integrado Microsoft")
         wait.until(EC.element_to_be_clickable(selector_login_integrado)).click()
-
     # Tentativa 2: Usando By.XPATH (funciona para <button>, <div>, <span>, etc.)
     except:
         print("Não encontrou por LINK_TEXT. Tentando por XPATH...")
@@ -56,7 +56,7 @@ try:
         EC.presence_of_element_located((By.ID, "i0118"))
     )
     print("Preenchendo senha da Microsoft...")
-    password_field_microsoft.send_keys(" ")  # Coloque a sua senha aqui
+    password_field_microsoft.send_keys(" ")#Coloque a sua senha aqui
 
     # Tenta clicar no botão "Entrar" (com loop anti-stale)
     print("Procurando o botão 'Entrar'...")
@@ -69,8 +69,7 @@ try:
             clicado_entrar = True
             print("Botão 'Entrar' clicado.")
         except StaleElementReferenceException:
-            tentativas += 1
-            time.sleep(0.5)
+            tentativas += 1; time.sleep(0.5)
 
     if not clicado_entrar:
         raise Exception("Falha ao clicar em Entrar")
@@ -85,16 +84,14 @@ try:
             keep_logged_in_button = WebDriverWait(driver, 180).until(
                 EC.element_to_be_clickable((By.ID, "idSIButton9"))
             )
-            keep_logged_in_button.click()  # Clica "Sim"
+            keep_logged_in_button.click() # Clica "Sim"
             clicado_manter = True
             print("MFA Aprovado! Botão 'Manter conectado' clicado.")
         except StaleElementReferenceException:
-            tentativas += 1
-            time.sleep(0.5)
+            tentativas += 1; time.sleep(0.5)
         except TimeoutException:
             print("Erro: Timeout após 180s. Você não aprovou o MFA a tempo?")
-            clicado_manter = False
-            break
+            clicado_manter = False; break
 
     if not clicado_manter:
         raise Exception("Falha ao clicar em Manter Conectado")
@@ -121,7 +118,7 @@ try:
 
     # 3. APERTAR "EDITAR"
     # (Pode ser por ID, NOME, ou texto. 'name' é um bom chute em apps Zoho)
-    selector_editar = (By.CLASS_NAME, "linkborder")  # Chute, pode ser "Editar"
+    selector_editar = (By.CLASS_NAME, "linkborder") # Chute, pode ser "Editar"
     wait.until(EC.element_to_be_clickable(selector_editar)).click()
     print("3. Cliquei em 'Editar'.")
 
@@ -132,11 +129,11 @@ try:
     print("4. Selecionei 'Coletor de custo ADM'.")
 
     # O seletor dele provavelmente é um 'class' ou 'onclick'
-    selector_seta_direita = (By.CLASS_NAME, "moverightButton")  # CHUTE!
+    selector_seta_direita = (By.CLASS_NAME, "moverightButton") # CHUTE!
     driver.find_element(*selector_seta_direita).click()
     print(" - Cliquei na seta para mover.")
-    print("4.5. Expandindo 'Passo 2: Opções de filtragem'...")
 
+    print("4.5. Expandindo 'Passo 2: Opções de filtragem'...")
     try:
         # O ID 'reportstep2' foi confirmado pela sua imagem do Inspecionar
         selector_opcoes_filtragem = (By.ID, "rcstep2src")
@@ -150,7 +147,7 @@ try:
     except TimeoutException:
         print(" - FALHA: Não foi possível encontrar 'Passo 2: Opções de filtragem' (ID: reportstep2).")
         # Se este passo falhar, o próximo (clicar no rádio) também vai falhar.
-        raise  # 'raise' vai parar o script e pular para o bloco 'except Exception'
+        raise # 'raise' vai parar o script e pular para o bloco 'except Exception'
 
     # --- PASSO 5: Selecionar o rádio 'Durante' ---
     print("5. Selecionando o filtro 'Durante'...")
@@ -162,14 +159,14 @@ try:
         print(" - SUCESSO: Filtro 'Durante' selecionado.")
     except TimeoutException:
         print(" - FALHA: Não foi possível encontrar o rádio 'Durante' (CSS_SELECTOR: input[value='predefined']).")
-        raise  # Para o script se não encontrar
+        raise # Para o script se não encontrar
 
     # 6. APERTAR "EXECUTAR RELATÓRIO"
     selector_executar = (By.ID, "addnew223222")
     wait.until(EC.element_to_be_clickable(selector_executar)).click()
     print("6. Cliquei em 'Executar relatório'.")
     print("--- Relatório executado, aguardando 10s para carregar...")
-    time.sleep(3)  # Pausa importante para o relatório carregar
+    time.sleep(3) # Pausa importante para o relatório carregar
 
     # --- 7. Baixar Relatório XLS Diretamente ---
     print("7. Iniciando o download direto do relatório XLS...")
@@ -178,25 +175,25 @@ try:
         DOWNLOAD_XLS_LINK = (By.ID, "exportxls")
         wait.until(EC.element_to_be_clickable(DOWNLOAD_XLS_LINK)).click()
         print(" - Clique realizado no link 'Exportar arquivo como XLS'.")
-
         # IMPORTANTE: Adicionar uma pausa para o download começar e terminar.
         # A melhor abordagem é verificar a pasta de downloads até o arquivo aparecer.
         # Veja a explicação abaixo sobre como fazer isso.
         print(" - Aguardando o download ser concluído...")
-        time.sleep(5)  # Pausa simples de 15 segundos. O ideal é usar uma função de verificação.
+        time.sleep(5) # Pausa simples de 15 segundos. O ideal é usar uma função de verificação.
         print(" - Relatório baixado com sucesso!")
     except Exception as e:
         print(f"ERRO ao tentar baixar o relatório XLS: {e}")
         # Adicione aqui o tratamento de erro
 
     print("--- Automação concluída com sucesso! ---")
-    time.sleep(1)  # Pausa para você ver o resultado
+    time.sleep(1) # Pausa para você ver o resultado
 
 except Exception as e:
     print(f"ERRO: A automação falhou.")
     print(e)
+
 finally:
-    driver.quit()  # Comente "driver.quit()" para o navegador não fechar no final
+    driver.quit() # Comente "driver.quit()" para o navegador não fechar no final
     print("Script finalizado.")
     time.sleep(2)
 
@@ -210,8 +207,7 @@ NOME_ARQUIVO_FINAL = "Produtividade_EDITADO.xlsx"
 
 def processar_relatorio_email():
     """
-    Encontra o relatório baixado, edita no Excel (deletando linhas)
-    e cria uma planilha de resumo formatada.
+    Encontra o relatório baixado, edita no Excel (deletando linhas) e cria uma planilha de resumo formatada.
     """
     # Constantes de formatação do Excel
     xlUp = -4162
@@ -221,6 +217,7 @@ def processar_relatorio_email():
     xlCenter = -4108
     xlTop = -4160
     xlContinuous = 1
+
     # -----------------------------------------------
     arquivo_salvo_path = None
     excel = None
@@ -231,7 +228,6 @@ def processar_relatorio_email():
         print(f"Procurando o relatório mais recente na pasta: {PASTA_DOWNLOAD}")
         # Lista todos os arquivos na pasta que terminam com .xls (ignorando maiúsculas/minúsculas)
         arquivos_xls = [f for f in os.listdir(PASTA_DOWNLOAD) if f.lower().endswith('.xls')]
-        
         if not arquivos_xls:
             raise FileNotFoundError(f"Nenhum arquivo .xls encontrado na pasta {PASTA_DOWNLOAD}")
 
@@ -239,7 +235,6 @@ def processar_relatorio_email():
         caminhos_completos = [os.path.join(PASTA_DOWNLOAD, f) for f in arquivos_xls]
         arquivo_salvo_path = max(caminhos_completos, key=os.path.getmtime)
         print(f"Arquivo mais recente encontrado: {arquivo_salvo_path}")
-
     except Exception as e:
         print(f"ERRO ao tentar encontrar o arquivo de relatório na pasta de downloads: {e}")
         return
@@ -250,54 +245,68 @@ def processar_relatorio_email():
         excel = win32com.client.Dispatch("Excel.Application")
         excel.Visible = True
         excel.DisplayAlerts = False
-
         wb = excel.Workbooks.Open(arquivo_salvo_path)
-        ws = wb.Worksheets(1)  # ws = Planilha de dados processada
+        ws = wb.Worksheets(1) # ws = Planilha de dados processada
 
         # --- 2.1 a 2.6. Limpeza (SEM AutoFilter) ---
         print("Editando: Excluindo linhas 1-8...")
         ws.Rows("1:8").Delete()
-
         print("Editando: Removendo logos/imagens...")
         for shape in ws.Shapes:
             shape.Delete()
-
         print("Editando: Ajustando altura e largura...")
         ws.Rows.RowHeight = 12
         ws.Columns.ColumnWidth = 12
 
-        # --- (NOVO) 2.7. Deletar linhas que NÃO SÃO de "Correspondência" E/OU têm hora < 12:00 ------
-        print("Editando: Removendo linhas que não são de 'Solicitação de Envio de Correspondência' OU têm hora de conclusão antes do meio-dia...")
-        
-        # ATENÇÃO AQUI: Se "Correspondência" for muito genérico,
-        # use "Solicitação de Envio de Correspondência"
-        
-        # --- (NOVO) 2.7. Deletar linhas que NÃO SÃO de "Correspondência" ---
+        # --- (EXISTENTE) 2.7. Deletar linhas que NÃO SÃO de "Correspondência"
         print("Editando: Removendo linhas que não são de 'Solicitação de Envio de Correspondência'...")
-        
-        # ATENÇÃO AQUI: Se "Correspondência" for muito genérico,
-        # use "Solicitação de Envio de Correspondência"
         filtro_texto = "Solicitação de Envio de Correspondência"
-
-        # Achar a última linha (baseado na Coluna H, campo 8)
+        # Achar a última linha (baseado na Coluna I, campo 9)
+        # Mantive o uso da coluna 9 (I).
         last_row = ws.Cells(ws.Rows.Count, 9).End(xlUp).Row
         print(f"Verificando {last_row} linhas (de baixo para cima)...")
-        
         # Loop de baixo para cima para deletar com segurança
-        for i in range(last_row, 1, -1):  # (de last_row até a linha 2)
-            cell_value = str(ws.Cells(i, 9).Value)  # Coluna H
+        for i in range(last_row, 1, -1): # (de last_row até a linha 2)
+            cell_value = str(ws.Cells(i, 9).Value) # Coluna I
             # Se o texto NÃO for encontrado, deleta a linha
             if filtro_texto not in cell_value:
                 ws.Rows(i).Delete()
-
         print("Linhas indesejadas removidas.")
+
+        # --- (NOVO) 2.8. Deletar linhas com horários específicos se for depois do meio-dia ---
+        print("\nIniciando verificação de horário para remoção adicional...")
+        # Pega a hora atual (apenas o componente da hora, em formato 24h)
+        hora_atual = datetime.now().hour
+        # Condição: Se a hora atual for maior que 12 (ou seja, 13h em diante)
+        if hora_atual >= 12:
+            print(f"A hora atual ({hora_atual}:00) é maior que 12:00. Removendo correspondências matutinas.")
+            # Lista dos horários que queremos remover
+            horarios_para_excluir = ["11:", "10:", "09:", "08:", "07:", "06:"]
+            # É importante recalcular a última linha, pois a primeira limpeza pode ter alterado o total.
+            # Usaremos a coluna K (11) como referência para esta verificação.
+            last_row = ws.Cells(ws.Rows.Count, 11).End(xlUp).Row
+            print(f"Verificando {last_row} linhas (de baixo para cima) na coluna K...")
+            # Loop de baixo para cima novamente
+            for i in range(last_row, 1, -1):
+                cell_value_k = str(ws.Cells(i, 11).Value) # Pega o valor da Coluna K
+                # Verifica se algum dos horários da lista está no texto da célula
+                for horario in horarios_para_excluir:
+                    if horario in cell_value_k:
+                        ws.Rows(i).Delete()
+                        # Uma vez que a linha é deletada, podemos parar de verificar outros horários
+                        # e passar para a próxima linha (i-1).
+                        break
+            print("Remoção de correspondências matutinas concluída.")
+        else:
+            # Se não for depois do meio-dia, apenas informa e não faz nada.
+            print(f"A hora atual ({hora_atual}:00) não é maior que 12:00. Nenhuma remoção adicional será feita.")
 
         # 2.9. Adicionar fórmulas (Agora sem SpecialCells)
         print("Editando: Adicionando fórmulas nas colunas M-R...")
         # Achar a *nova* última linha, após as deleções
         last_row = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
         print(f"Última linha de dados (pós-deleção): {last_row}")
-        
+
         if last_row > 1:
             # Não precisamos mais de 'SpecialCells' ou do 'try/except' para filtro vazio
             ws.Range(f"N2:N{last_row}").FormulaLocal = "=TEXTODEPOIS(F2;\"ADM:\")"
@@ -319,7 +328,6 @@ def processar_relatorio_email():
         # 2.12 Montar o Layout do Resumo
         print("Criando: Layout do Resumo (Título e Cabeçalho)...")
         today_date = time.strftime("%d/%m/%Y")
-        
         title_range = ws_summary.Range("A1:D1")
         title_range.Merge()
         title_range.Value = f"MRV - DATA - {today_date}"
@@ -330,7 +338,6 @@ def processar_relatorio_email():
         ws_summary.Range("B2").Value = "Chamado"
         ws_summary.Range("C2").Value = "Serviço"
         ws_summary.Range("D2").Value = "Quantidade"
-
         summary_header = ws_summary.Range("A2:D2")
         summary_header.Font.Bold = True
         summary_header.Font.Color = 16777215
@@ -343,19 +350,15 @@ def processar_relatorio_email():
         if last_row > 1:
             ws.Range(f"O2:O{last_row}").Copy()
             ws_summary.Range("A3").PasteSpecial(Paste=xlPasteValues)
-            
             ws.Range(f"B2:B{last_row}").Copy()
             ws_summary.Range("B3").PasteSpecial(Paste=xlPasteValues)
-            
             ws.Range(f"Q2:Q{last_row}").Copy()
             ws_summary.Range("C3").PasteSpecial(Paste=xlPasteValues)
-            
             ws.Range(f"S2:S{last_row}").Copy()
             ws_summary.Range("D3").PasteSpecial(Paste=xlPasteValues)
             print("Dados copiados com sucesso.")
         else:
             print("AVISO: Nenhum dado filtrado para copiar.")
-        
         excel.Application.CutCopyMode = False
 
         # 2.13.1 Adicionar Rodapé Dinâmico
@@ -392,7 +395,7 @@ def processar_relatorio_email():
 
     except Exception as e:
         print(f"ERRO durante a edição no Excel: {e}")
-    
+
     '''
     finally:
         # --- 4. FECHAR O EXCEL ---

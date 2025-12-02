@@ -309,7 +309,8 @@ def processar_relatorio_email():
 
         if last_row > 1:
             # Não precisamos mais de 'SpecialCells' ou do 'try/except' para filtro vazio
-            ws.Range(f"N2:N{last_row}").FormulaLocal = "=TEXTODEPOIS(F2;\"ADM:\")"
+            formula_N = '=IFERROR(MID(F2, SEARCH("Código:", F2) + 7, 999), IFERROR(MID(F2, SEARCH("Coletor de Custo ADM", F2) + 22, 999), IFERROR(MID(F2, SEARCH("Centro de custo:", F2) + 17, 999), IFERROR(MID(F2, SEARCH(". Código:", F2) + 8, 999), ""))))'
+            ws.Range(f"N2:N{last_row}").Formula = formula_N
             ws.Range(f"O2:O{last_row}").FormulaLocal = "=ESQUERDA(N2;11)"
             ws.Range(f"P2:P{last_row}").FormulaLocal = "=TEXTODEPOIS(F2;\"Correspondência:\")"
             ws.Range(f"Q2:Q{last_row}").FormulaLocal = "=TEXTOANTES(P2;\"Cidade\")"
